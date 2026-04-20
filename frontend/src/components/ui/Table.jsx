@@ -35,5 +35,5 @@ export function TR({ children, className }) {
 }
 
 export function TD({ children, className }) {
-  return <td className={cn("px-4 py-3 text-sm text-slate-700 dark:text-slate-300", className)}>{children}</td>;
+  return <td className={cn("px-4 py-4 text-sm text-slate-700 dark:text-slate-300", className)}>{children}</td>;
 }

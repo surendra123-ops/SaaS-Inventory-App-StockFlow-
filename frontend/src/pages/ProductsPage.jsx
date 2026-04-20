@@ -163,23 +163,23 @@ function ProductsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {error && <p className="rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300">{error}</p>}
-      <div className="space-y-2">
+      <div className="space-y-3">
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Products</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">Manage inventory, track stock status, and keep SKU data accurate.</p>
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
         <div className="w-full">
-          <label htmlFor="product-search" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+          <label htmlFor="product-search" className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
             Search Products
           </label>
           <div className="relative">
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">⌕</span>
             <input
               id="product-search"
-              className="h-10 w-full rounded-md border border-slate-300 bg-white pl-9 pr-9 text-sm text-slate-900 outline-none transition-all duration-150 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-blue-900/40"
+              className="h-11 w-full rounded-md border border-slate-300 bg-white pl-9 pr-9 text-sm text-slate-900 outline-none transition-all duration-150 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-blue-900/40"
               placeholder="Search by name or SKU"
               value={search}
               onChange={(e) => {
@@ -202,7 +202,9 @@ function ProductsPage() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button onClick={openCreateModal}>Add Product</Button>
+          <Button className="h-11 px-5" onClick={openCreateModal}>
+            Add Product
+          </Button>
         </div>
       </div>
 
@@ -256,7 +258,7 @@ function ProductsPage() {
           </TBody>
         </Table>
         {pagination.total > 0 && (
-          <div className="flex flex-col items-center justify-between gap-3 border-t border-slate-200 px-6 py-4 sm:flex-row dark:border-slate-800">
+          <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-200 px-6 py-5 sm:flex-row dark:border-slate-800">
             <p className="text-sm text-slate-600 dark:text-slate-400">
               Page {pagination.page} of {pagination.totalPages}
             </p>
