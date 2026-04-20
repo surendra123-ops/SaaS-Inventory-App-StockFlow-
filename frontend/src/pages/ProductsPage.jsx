@@ -164,22 +164,22 @@ function ProductsPage() {
 
   return (
     <div className="space-y-6">
-      {error && <p className="rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300">{error}</p>}
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-        <p className="text-sm text-gray-500">Manage inventory, track stock status, and keep SKU data accurate.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Products</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400">Manage inventory, track stock status, and keep SKU data accurate.</p>
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row">
         <div className="w-full">
-          <label htmlFor="product-search" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="product-search" className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
             Search Products
           </label>
           <div className="relative">
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">⌕</span>
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500">⌕</span>
             <input
               id="product-search"
-              className="h-10 w-full rounded-md border border-gray-300 bg-white pl-9 pr-9 text-sm text-gray-900 outline-none transition-colors duration-150 placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              className="h-10 w-full rounded-md border border-slate-300 bg-white pl-9 pr-9 text-sm text-slate-900 outline-none transition-all duration-150 placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-blue-900/40"
               placeholder="Search by name or SKU"
               value={search}
               onChange={(e) => {
@@ -189,7 +189,7 @@ function ProductsPage() {
             />
             {search && (
               <button
-                className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100"
+                className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                 onClick={() => {
                   setSearch("");
                   setPage(1);
@@ -207,8 +207,8 @@ function ProductsPage() {
       </div>
 
       <Card>
-        <div className="border-b border-gray-200 px-6 py-4">
-          <h2 className="text-lg font-semibold text-gray-900">Products</h2>
+        <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-800">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Products</h2>
         </div>
         <Table>
           <THead>
@@ -223,7 +223,7 @@ function ProductsPage() {
           <TBody>
             {pagination.total === 0 ? (
               <TR>
-                <TD colSpan={5} className="py-10 text-center text-gray-500">
+                <TD colSpan={5} className="py-10 text-center text-slate-500 dark:text-slate-400">
                   {debouncedSearch.trim() ? "No results found" : "No products available"}
                 </TD>
               </TR>
@@ -233,7 +233,7 @@ function ProductsPage() {
                 const lowStock = item.quantity <= threshold;
                 return (
                   <TR key={item._id} className={lowStock ? "bg-amber-50/50 hover:bg-amber-50" : ""}>
-                    <TD className="font-medium text-gray-900">{item.name}</TD>
+                    <TD className="font-medium text-slate-900 dark:text-slate-100">{item.name}</TD>
                     <TD>{item.sku}</TD>
                     <TD className="text-right">{item.quantity}</TD>
                     <TD>
@@ -256,8 +256,8 @@ function ProductsPage() {
           </TBody>
         </Table>
         {pagination.total > 0 && (
-          <div className="flex flex-col items-center justify-between gap-3 border-t border-gray-200 px-6 py-4 sm:flex-row">
-            <p className="text-sm text-gray-600">
+          <div className="flex flex-col items-center justify-between gap-3 border-t border-slate-200 px-6 py-4 sm:flex-row dark:border-slate-800">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
               Page {pagination.page} of {pagination.totalPages}
             </p>
             <div className="flex items-center gap-2">
@@ -340,7 +340,7 @@ function ProductsPage() {
           </>
         }
       >
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-slate-600 dark:text-slate-400">
           Are you sure you want to delete this product? This action cannot be undone.
         </p>
       </Modal>

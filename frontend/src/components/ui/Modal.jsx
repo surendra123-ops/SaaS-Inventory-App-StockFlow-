@@ -25,15 +25,15 @@ function Modal({ open, title, children, onClose, footer, disableClose = false })
           if (!disableClose) onClose();
         }}
       />
-      <div className="sf-modal-panel relative z-10 w-full max-w-2xl rounded-xl border border-gray-200 bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+      <div className="sf-modal-panel relative z-10 w-full max-w-2xl rounded-xl border border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900">
+        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-800">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{title}</h3>
           <Button variant="ghost" className="h-8 px-2" onClick={onClose} disabled={disableClose}>
             ✕
           </Button>
         </div>
-        <div className="px-5 py-4">{children}</div>
-        {footer && <div className="flex justify-end gap-2 border-t border-gray-200 px-5 py-4">{footer}</div>}
+        <div className="px-6 py-4">{children}</div>
+        {footer && <div className="flex justify-end gap-2 border-t border-slate-200 px-6 py-4 dark:border-slate-800">{footer}</div>}
       </div>
     </div>
   );

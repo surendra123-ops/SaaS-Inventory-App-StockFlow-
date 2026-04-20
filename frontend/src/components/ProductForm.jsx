@@ -76,8 +76,8 @@ function ProductForm({ onSubmit, onCancel, product, loading }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <h3 className="text-xl font-semibold text-gray-900">{product ? "Edit product" : "Add product"}</h3>
-      {error && <p className="rounded-md bg-red-50 p-2 text-sm text-red-700">{error}</p>}
+      <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">{product ? "Edit product" : "Add product"}</h3>
+      {error && <p className="rounded-md bg-red-50 p-2 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300">{error}</p>}
 
       <div className="grid gap-4 md:grid-cols-2">
         <Input id="name" name="name" label="Product Name" required value={form.name} onChange={handleChange} error={fieldErrors.name} />

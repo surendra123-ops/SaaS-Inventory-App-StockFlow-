@@ -45,14 +45,14 @@ function SignupPage() {
   };
 
   return (
-    <div className="grid min-h-screen place-items-center bg-gray-50 p-4">
+    <div className="grid min-h-screen place-items-center bg-slate-50 p-4 transition-colors duration-300 dark:bg-slate-950">
       <Card className="w-full max-w-md p-6">
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Create account</h1>
-            <p className="mt-1 text-sm text-gray-500">Start managing inventory with StockFlow</p>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Create account</h1>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Start managing inventory with StockFlow</p>
           </div>
-          {error && <p className="rounded-md bg-red-50 p-2 text-sm text-red-700">{error}</p>}
+          {error && <p className="rounded-md bg-red-50 p-2 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300">{error}</p>}
           <Input
             id="organizationName"
             label="Organization Name"
@@ -91,7 +91,7 @@ function SignupPage() {
           <Button type="submit" className="w-full" loading={loading} disabled={!isValid}>
             Create Account
           </Button>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
             Already registered?{" "}
             <Link to="/login" className="font-medium text-blue-600 hover:text-blue-700">
               Login

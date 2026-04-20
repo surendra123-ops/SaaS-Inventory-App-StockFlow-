@@ -9,11 +9,11 @@ export function Table({ children, className }) {
 }
 
 export function THead({ children }) {
-  return <thead className="border-b border-gray-200 bg-gray-50">{children}</thead>;
+  return <thead className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900">{children}</thead>;
 }
 
 export function TH({ children, className }) {
-  return <th className={cn("px-4 py-3 text-left text-sm font-semibold text-gray-500", className)}>{children}</th>;
+  return <th className={cn("px-4 py-3 text-left text-sm font-semibold text-slate-500 dark:text-slate-400", className)}>{children}</th>;
 }
 
 export function TBody({ children }) {
@@ -25,6 +25,7 @@ export function TR({ children, className }) {
     <tr
       className={cn(
         "border-b border-gray-100 odd:bg-white even:bg-gray-50/40 transition-colors duration-150 hover:bg-gray-50",
+        "dark:border-slate-800 dark:odd:bg-slate-950 dark:even:bg-slate-900/70 dark:hover:bg-slate-900",
         className
       )}
     >
@@ -34,5 +35,5 @@ export function TR({ children, className }) {
 }
 
 export function TD({ children, className }) {
-  return <td className={cn("px-4 py-3 text-sm text-gray-700", className)}>{children}</td>;
+  return <td className={cn("px-4 py-3 text-sm text-slate-700 dark:text-slate-300", className)}>{children}</td>;
 }

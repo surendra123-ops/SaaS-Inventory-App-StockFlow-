@@ -57,34 +57,34 @@ function SettingsPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
-        <p className="text-sm text-gray-500">Configure default inventory behavior for your workspace.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Settings</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400">Configure default inventory behavior for your workspace.</p>
       </div>
       <Card className="max-w-2xl p-6">
-      <form onSubmit={onSave} className="space-y-4">
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900">Default Low Stock Threshold</h2>
-          <p className="mt-1 text-sm text-gray-500">Applied whenever a product-specific threshold is not set.</p>
-        </div>
-        {error && <p className="rounded-md bg-red-50 p-2 text-sm text-red-700">{error}</p>}
-        <Input
-          id="defaultLowStockThreshold"
-          type="number"
-          min="0"
-          step="1"
-          label="Threshold Value"
-          required
-          value={value}
-          onChange={(e) => {
-            setValue(e.target.value);
-            setFieldError("");
-          }}
-          error={fieldError}
-        />
-        <Button type="submit" loading={saving} disabled={!isValid}>
-          Save Settings
-        </Button>
-      </form>
+        <form onSubmit={onSave} className="space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Default Low Stock Threshold</h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Applied whenever a product-specific threshold is not set.</p>
+          </div>
+          {error && <p className="rounded-md bg-red-50 p-2 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300">{error}</p>}
+          <Input
+            id="defaultLowStockThreshold"
+            type="number"
+            min="0"
+            step="1"
+            label="Threshold Value"
+            required
+            value={value}
+            onChange={(e) => {
+              setValue(e.target.value);
+              setFieldError("");
+            }}
+            error={fieldError}
+          />
+          <Button type="submit" loading={saving} disabled={!isValid}>
+            Save Settings
+          </Button>
+        </form>
       </Card>
     </div>
   );

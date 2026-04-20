@@ -32,10 +32,10 @@ export function ToastProvider({ children }) {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`pointer-events-auto rounded-md border px-4 py-3 text-sm shadow-lg ${
+            className={`pointer-events-auto rounded-md border px-4 py-3 text-sm shadow-lg transition-all duration-200 ${
               toast.type === "success"
-                ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                : "border-red-200 bg-red-50 text-red-800"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
+                : "border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-900/40 dark:text-red-300"
             }`}
           >
             {toast.message}

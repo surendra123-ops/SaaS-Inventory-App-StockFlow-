@@ -64,28 +64,28 @@ function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {error && <p className="rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-md bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-300">{error}</p>}
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-500">Monitor inventory health, low stock risk, and recent activity.</p>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Dashboard</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400">Monitor inventory health, low stock risk, and recent activity.</p>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="p-6">
-          <p className="text-sm text-gray-500">Total Products</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900">{data.totalProducts}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Total Products</p>
+          <p className="mt-2 text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{data.totalProducts}</p>
         </Card>
         <Card className="p-6">
-          <p className="text-sm text-gray-500">Total Quantity</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900">{data.totalQuantity}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Total Quantity</p>
+          <p className="mt-2 text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{data.totalQuantity}</p>
         </Card>
         <Card className="p-6">
-          <p className="text-sm text-gray-500">Low Stock Count</p>
-          <p className="mt-2 text-3xl font-bold text-amber-600">{data.lowStockItems.length}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Low Stock Count</p>
+          <p className="mt-2 text-4xl font-bold tracking-tight text-amber-600 dark:text-amber-400">{data.lowStockItems.length}</p>
         </Card>
       </div>
       <Card>
-        <div className="border-b border-gray-200 px-6 py-4">
-          <h2 className="text-lg font-semibold text-gray-900">Low Stock Items</h2>
+        <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-800">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Low Stock Items</h2>
         </div>
         <Table>
           <THead>
@@ -105,9 +105,9 @@ function DashboardPage() {
             ) : (
               data.lowStockItems.map((item) => (
                 <TR key={item._id} className="bg-amber-50/50 hover:bg-amber-50">
-                  <TD className="font-medium text-gray-900">{item.name}</TD>
+                  <TD className="font-medium text-slate-900 dark:text-slate-100">{item.name}</TD>
                   <TD>{item.sku}</TD>
-                  <TD className="text-right font-semibold text-amber-700">{item.quantity}</TD>
+                  <TD className="text-right font-semibold text-amber-700 dark:text-amber-300">{item.quantity}</TD>
                 </TR>
               ))
             )}
@@ -116,8 +116,8 @@ function DashboardPage() {
       </Card>
 
       <Card>
-        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Products</h2>
+        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-800">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Recent Products</h2>
           <Button variant="secondary" className="h-8 px-3" onClick={() => navigate("/products")}>
             View All
           </Button>
@@ -143,7 +143,7 @@ function DashboardPage() {
                 const lowStock = item.quantity <= (item.lowStockThreshold ?? defaultThreshold);
                 return (
                   <TR key={item._id} className={lowStock ? "bg-amber-50/50 hover:bg-amber-50" : ""}>
-                    <TD className="font-medium text-gray-900">{item.name}</TD>
+                    <TD className="font-medium text-slate-900 dark:text-slate-100">{item.name}</TD>
                     <TD>{item.sku}</TD>
                     <TD className="text-right">{item.quantity}</TD>
                     <TD>
@@ -156,8 +156,8 @@ function DashboardPage() {
           </TBody>
         </Table>
         {recentPagination.total > 0 && (
-          <div className="flex flex-col items-center justify-between gap-3 border-t border-gray-200 px-6 py-4 sm:flex-row">
-            <p className="text-sm text-gray-600">
+          <div className="flex flex-col items-center justify-between gap-3 border-t border-slate-200 px-6 py-4 sm:flex-row dark:border-slate-800">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
               Page {recentPagination.page} of {recentPagination.totalPages}
             </p>
             <div className="flex items-center gap-2">
