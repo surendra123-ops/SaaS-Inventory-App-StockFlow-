@@ -13,22 +13,19 @@ import { useNavigate } from "react-router-dom";
 function DashboardPage() {
   const [data, setData] = useState({ totalProducts: 0, totalQuantity: 0, lowStockItems: [] });
   const [recentProducts, setRecentProducts] = useState([]);
+  const [recentPagination, setRecentPagination] = useState({ page: 1, limit: 5, total: 0, totalPages: 1 });
+  const [recentPage, setRecentPage] = useState(1);
   const [defaultThreshold, setDefaultThreshold] = useState(10);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchDashboard = async () => {
       try {
         setLoading(true);
-        const [dashboardResponse, productsResponse, settingsResponse] = await Promise.all([
-          dashboardApi.get(),
-          productApi.list(),
-          settingsApi.get()
-        ]);
+        const [dashboardResponse, settingsResponse] = await Promise.all([dashboardApi.get(), settingsApi.get()]);
         setData(dashboardResponse.data.data);
-        setRecentProducts(productsResponse.data.data.products.slice(0, 6));
         setDefaultThreshold(settingsResponse.data.data.settings.defaultLowStockThreshold);
       } catch (err) {
         setError(formatError(err));
@@ -36,8 +33,21 @@ function DashboardPage() {
         setLoading(false);
       }
     };
-    fetchData();
+    fetchDashboard();
   }, []);
+
+  useEffect(() => {
+    const fetchRecent = async () => {
+      try {
+        const productsResponse = await productApi.list({ page: recentPage, limit: 5 });
+        setRecentProducts(productsResponse.data.data.items);
+        setRecentPagination(productsResponse.data.data.pagination);
+      } catch (err) {
+        setError(formatError(err));
+      }
+    };
+    fetchRecent();
+  }, [recentPage]);
 
   if (loading) {
     return (
@@ -99,6 +109,31 @@ function DashboardPage() {
             )}
           </TBody>
         </Table>
+        {recentPagination.total > 0 && (
+          <div className="flex flex-col items-center justify-between gap-3 border-t border-gray-200 px-4 py-3 sm:flex-row">
+            <p className="text-sm text-gray-600">
+              Page {recentPagination.page} of {recentPagination.totalPages}
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                className="h-8 px-3"
+                disabled={recentPage <= 1}
+                onClick={() => setRecentPage((prev) => Math.max(1, prev - 1))}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="secondary"
+                className="h-8 px-3"
+                disabled={recentPage >= recentPagination.totalPages}
+                onClick={() => setRecentPage((prev) => Math.min(recentPagination.totalPages, prev + 1))}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </Card>
 
       <Card>

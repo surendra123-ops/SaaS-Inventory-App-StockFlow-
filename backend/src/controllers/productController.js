@@ -4,8 +4,15 @@ import { successResponse } from "../utils/apiResponse.js";
 export const productController = {
   async list(req, res, next) {
     try {
-      const products = await productService.list(req.auth.organizationId, req.query.search?.trim() || "");
-      return res.json(successResponse({ products }));
+      const page = Number.parseInt(req.query.page, 10);
+      const limit = Number.parseInt(req.query.limit, 10);
+      const result = await productService.list(
+        req.auth.organizationId,
+        req.query.search?.trim() || "",
+        Number.isNaN(page) ? 1 : page,
+        Number.isNaN(limit) ? 10 : limit
+      );
+      return res.json(successResponse(result));
     } catch (error) {
       return next(error);
     }

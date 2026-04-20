@@ -5,8 +5,25 @@ import { AppError } from "../utils/AppError.js";
 import { escapeRegex } from "../utils/escapeRegex.js";
 
 export const productService = {
-  list(organizationId, search) {
-    return productRepository.listByOrganization(organizationId, search ? escapeRegex(search) : "");
+  async list(organizationId, search, page = 1, limit = 10) {
+    const safeSearch = search ? escapeRegex(search) : "";
+    const safePage = Number.isInteger(page) && page > 0 ? page : 1;
+    const safeLimit = Number.isInteger(limit) && limit > 0 ? Math.min(limit, 100) : 10;
+    const { items, total } = await productRepository.listByOrganizationPaginated(
+      organizationId,
+      safeSearch,
+      safePage,
+      safeLimit
+    );
+    return {
+      items,
+      pagination: {
+        page: safePage,
+        limit: safeLimit,
+        total,
+        totalPages: Math.max(1, Math.ceil(total / safeLimit))
+      }
+    };
   },
   async create(organizationId, payload) {
     try {

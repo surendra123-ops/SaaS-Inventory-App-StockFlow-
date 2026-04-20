@@ -12,9 +12,11 @@ import { useToast } from "../hooks/useToast.js";
 import { formatError } from "../utils/formatError.js";
 
 function ProductsPage() {
-  const [allProducts, setAllProducts] = useState([]);
+  const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 1 });
   const [editing, setEditing] = useState(null);
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -26,10 +28,11 @@ function ProductsPage() {
   const [error, setError] = useState("");
   const toast = useToast();
 
-  const load = async () => {
+  const loadProducts = async ({ pageValue = 1, searchValue = "" } = {}) => {
     try {
-      const res = await productApi.list();
-      setAllProducts(res.data.data.products);
+      const res = await productApi.list({ search: searchValue, page: pageValue, limit: 10 });
+      setProducts(res.data.data.items);
+      setPagination(res.data.data.pagination);
     } catch (err) {
       setError(formatError(err));
     }
@@ -37,17 +40,14 @@ function ProductsPage() {
 
   useEffect(() => {
     let isMounted = true;
-    Promise.all([productApi.list(), settingsApi.get()])
-      .then(([productsResponse, settingsResponse]) => {
+    settingsApi
+      .get()
+      .then((response) => {
         if (!isMounted) return;
-        setAllProducts(productsResponse.data.data.products);
-        setDefaultThreshold(settingsResponse.data.data.settings.defaultLowStockThreshold);
+        setDefaultThreshold(response.data.data.settings.defaultLowStockThreshold);
       })
       .catch((err) => {
         if (isMounted) setError(formatError(err));
-      })
-      .finally(() => {
-        if (isMounted) setPageLoading(false);
       });
     return () => {
       isMounted = false;
@@ -59,15 +59,30 @@ function ProductsPage() {
     return () => window.clearTimeout(timeout);
   }, [search]);
 
-  const products = useMemo(() => {
-    const term = debouncedSearch.trim().toLowerCase();
-    if (!term) {
-      return allProducts;
-    }
-    return allProducts.filter(
-      (item) => item.name.toLowerCase().includes(term) || item.sku.toLowerCase().includes(term)
-    );
-  }, [allProducts, debouncedSearch]);
+  useEffect(() => {
+    let isMounted = true;
+    const fetchProducts = async () => {
+      try {
+        const response = await productApi.list({
+          search: debouncedSearch.trim(),
+          page,
+          limit: 10
+        });
+        if (!isMounted) return;
+        setProducts(response.data.data.items);
+        setPagination(response.data.data.pagination);
+      } catch (err) {
+        if (!isMounted) return;
+        setError(formatError(err));
+      } finally {
+        if (isMounted) setPageLoading(false);
+      }
+    };
+    fetchProducts();
+    return () => {
+      isMounted = false;
+    };
+  }, [debouncedSearch, page]);
 
   const handleSubmit = async (payload) => {
     setLoading(true);
@@ -82,7 +97,7 @@ function ProductsPage() {
       }
       setEditing(null);
       setIsFormModalOpen(false);
-      await load();
+      await loadProducts({ pageValue: page, searchValue: debouncedSearch.trim() });
     } catch (err) {
       setError(formatError(err));
       toast.error("Something went wrong");
@@ -96,10 +111,15 @@ function ProductsPage() {
     try {
       setDeleteLoading(true);
       await productApi.remove(deleteTarget._id);
-      setAllProducts((prev) => prev.filter((item) => item._id !== deleteTarget._id));
       setIsDeleteModalOpen(false);
       setDeleteTarget(null);
       toast.success("Product deleted successfully");
+      const nextPage = products.length === 1 && page > 1 ? page - 1 : page;
+      if (nextPage !== page) {
+        setPage(nextPage);
+      } else {
+        await loadProducts({ pageValue: page, searchValue: debouncedSearch.trim() });
+      }
     } catch (err) {
       setError(formatError(err));
       toast.error("Failed to delete product");
@@ -122,6 +142,16 @@ function ProductsPage() {
     setDeleteTarget(item);
     setIsDeleteModalOpen(true);
   };
+
+  const pageNumbers = useMemo(() => {
+    const totalPages = pagination.totalPages || 1;
+    const start = Math.max(1, page - 1);
+    const end = Math.min(totalPages, start + 2);
+    const adjustedStart = Math.max(1, end - 2);
+    const numbers = [];
+    for (let i = adjustedStart; i <= end; i += 1) numbers.push(i);
+    return numbers;
+  }, [page, pagination.totalPages]);
 
   if (pageLoading) {
     return (
@@ -148,12 +178,18 @@ function ProductsPage() {
               className="h-10 w-full rounded-md border border-gray-300 bg-white pl-9 pr-9 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
               placeholder="Search by name or SKU"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
             />
             {search && (
               <button
                 className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100"
-                onClick={() => setSearch("")}
+                onClick={() => {
+                  setSearch("");
+                  setPage(1);
+                }}
                 aria-label="Clear search"
               >
                 ✕
@@ -181,16 +217,10 @@ function ProductsPage() {
             </tr>
           </THead>
           <TBody>
-            {allProducts.length === 0 ? (
+            {pagination.total === 0 ? (
               <TR>
                 <TD colSpan={5} className="py-10 text-center text-gray-500">
-                  No products yet. Add your first product.
-                </TD>
-              </TR>
-            ) : products.length === 0 ? (
-              <TR>
-                <TD colSpan={5} className="py-10 text-center text-gray-500">
-                  No results found
+                  {debouncedSearch.trim() ? "No results found" : "No products available"}
                 </TD>
               </TR>
             ) : (
@@ -221,6 +251,43 @@ function ProductsPage() {
             )}
           </TBody>
         </Table>
+        {pagination.total > 0 && (
+          <div className="flex flex-col items-center justify-between gap-3 border-t border-gray-200 px-4 py-3 sm:flex-row">
+            <p className="text-sm text-gray-600">
+              Page {pagination.page} of {pagination.totalPages}
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                className="h-8 px-3"
+                disabled={page <= 1}
+                onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+              >
+                Previous
+              </Button>
+              <div className="flex gap-1">
+                {pageNumbers.map((pageNumber) => (
+                  <Button
+                    key={pageNumber}
+                    variant={pageNumber === page ? "primary" : "secondary"}
+                    className="h-8 min-w-8 px-2"
+                    onClick={() => setPage(pageNumber)}
+                  >
+                    {pageNumber}
+                  </Button>
+                ))}
+              </div>
+              <Button
+                variant="secondary"
+                className="h-8 px-3"
+                disabled={page >= pagination.totalPages}
+                onClick={() => setPage((prev) => Math.min(pagination.totalPages, prev + 1))}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </Card>
 
       <Modal
