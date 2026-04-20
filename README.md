@@ -1,5 +1,7 @@
 # StockFlow
 
+DEPLOY LINK : https://saas-inventory-app-stockflow.onrender.com
+
 StockFlow is a multi-tenant inventory SaaS MVP for small teams that need to track products, monitor low stock, and manage inventory settings per organization.
 
 It includes a Node.js + Express backend with MongoDB, and a React + Vite frontend with a production-style dashboard interface.
@@ -584,14 +586,4 @@ All errors follow:
 - Rate limiting is enabled
 - Tenant isolation enforced through `organizationId` filters
 
-## 14. Future Improvements
 
-Realistic next steps for this codebase:
-
-- Add automated tests (unit + integration + e2e)
-- Add refresh token rotation and token revocation store
-- Add request logging with structured logs
-- Add API docs generation (OpenAPI/Swagger)
-- Add role-based permissions for organization members
-- Add product import/export workflows
-- Add CI pipeline for lint, test, and build checks
