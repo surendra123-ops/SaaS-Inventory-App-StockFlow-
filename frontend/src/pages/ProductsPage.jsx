@@ -57,6 +57,10 @@ function ProductsPage() {
   };
 
   const onDelete = async (id) => {
+    const confirmed = window.confirm("Are you sure you want to delete this product?");
+    if (!confirmed) {
+      return;
+    }
     try {
       await productApi.remove(id);
       await load(search);

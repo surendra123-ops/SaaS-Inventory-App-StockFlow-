@@ -35,6 +35,10 @@ function ProductForm({ onSubmit, onCancel, product, loading }) {
         return;
       }
     }
+    if (!Number.isInteger(Number(form.quantity))) {
+      setError("quantity must be a whole number");
+      return;
+    }
     if (form.lowStockThreshold !== "" && Number(form.lowStockThreshold) < 0) {
       setError("lowStockThreshold must be a non-negative number");
       return;
@@ -63,7 +67,23 @@ function ProductForm({ onSubmit, onCancel, product, loading }) {
       <input name="name" placeholder="Product name" value={form.name} onChange={handleChange} className="rounded border p-2" />
       <input name="sku" placeholder="SKU" value={form.sku} onChange={handleChange} className="rounded border p-2" />
       <input name="description" placeholder="Description" value={form.description} onChange={handleChange} className="rounded border p-2" />
-      <input name="quantity" type="number" placeholder="Quantity" value={form.quantity} onChange={handleChange} className="rounded border p-2" />
+      <div className="flex items-center gap-2">
+        <input name="quantity" type="number" step="1" min="0" placeholder="Quantity" value={form.quantity} onChange={handleChange} className="w-full rounded border p-2" />
+        <button
+          type="button"
+          onClick={() => setForm((prev) => ({ ...prev, quantity: Math.max(0, Number(prev.quantity || 0) - 1) }))}
+          className="rounded border border-gray-300 px-3 py-2"
+        >
+          -1
+        </button>
+        <button
+          type="button"
+          onClick={() => setForm((prev) => ({ ...prev, quantity: Number(prev.quantity || 0) + 1 }))}
+          className="rounded border border-gray-300 px-3 py-2"
+        >
+          +1
+        </button>
+      </div>
       <input name="costPrice" type="number" step="0.01" placeholder="Cost price" value={form.costPrice} onChange={handleChange} className="rounded border p-2" />
       <input name="sellingPrice" type="number" step="0.01" placeholder="Selling price" value={form.sellingPrice} onChange={handleChange} className="rounded border p-2" />
       <input

@@ -6,7 +6,7 @@ const productSchema = new mongoose.Schema(
     name: { type: String, required: true, trim: true },
     sku: { type: String, required: true, trim: true },
     description: { type: String, default: "", trim: true },
-    quantity: { type: Number, required: true, min: 0 },
+    quantity: { type: Number, required: true, min: 0, validate: { validator: Number.isInteger } },
     costPrice: { type: Number, required: true, min: 0 },
     sellingPrice: { type: Number, required: true, min: 0 },
     lowStockThreshold: { type: Number, min: 0, default: null }

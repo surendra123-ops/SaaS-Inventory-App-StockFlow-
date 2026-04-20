@@ -7,6 +7,7 @@ const api = axios.create({
 
 let isRefreshing = false;
 let queuedRequests = [];
+let onUnauthorized = null;
 
 const runQueue = (error) => {
   queuedRequests.forEach((item) => {
@@ -45,11 +46,18 @@ api.interceptors.response.use(
       return api(originalRequest);
     } catch (refreshError) {
       runQueue(refreshError);
+      if (onUnauthorized) {
+        onUnauthorized();
+      }
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;
     }
   }
 );
+
+export const setUnauthorizedHandler = (handler) => {
+  onUnauthorized = handler;
+};
 
 export default api;

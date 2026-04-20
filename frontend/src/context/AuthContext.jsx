@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { authApi } from "../api/authApi.js";
+import { setUnauthorizedHandler } from "../api/axios.js";
 import { AuthContext } from "./AuthContextValue.js";
 
 const USER_STORAGE_KEY = "stockflow_user";
@@ -12,6 +13,10 @@ export function AuthProvider({ children }) {
   const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
+    setUnauthorizedHandler(() => {
+      localStorage.removeItem(USER_STORAGE_KEY);
+      setUser(null);
+    });
     const bootstrap = async () => {
       try {
         await authApi.refresh();
@@ -23,6 +28,9 @@ export function AuthProvider({ children }) {
       }
     };
     bootstrap();
+    return () => {
+      setUnauthorizedHandler(null);
+    };
   }, []);
 
   const login = (nextUser) => {
