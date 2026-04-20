@@ -49,7 +49,7 @@ function SignupPage() {
       <Card className="w-full max-w-md p-6">
         <form onSubmit={onSubmit} className="space-y-4">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Create account</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Create account</h1>
             <p className="mt-1 text-sm text-gray-500">Start managing inventory with StockFlow</p>
           </div>
           {error && <p className="rounded-md bg-red-50 p-2 text-sm text-red-700">{error}</p>}

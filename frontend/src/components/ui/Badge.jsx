@@ -2,6 +2,7 @@ import { cn } from "../../utils/cn.js";
 
 const styles = {
   success: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+  warning: "bg-amber-50 text-amber-700 ring-amber-200",
   danger: "bg-red-50 text-red-700 ring-red-200",
   neutral: "bg-gray-100 text-gray-700 ring-gray-200"
 };

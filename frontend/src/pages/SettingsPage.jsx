@@ -55,7 +55,12 @@ function SettingsPage() {
   }
 
   return (
-    <Card className="max-w-2xl p-5">
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+        <p className="text-sm text-gray-500">Configure default inventory behavior for your workspace.</p>
+      </div>
+      <Card className="max-w-2xl p-6">
       <form onSubmit={onSave} className="space-y-4">
         <div>
           <h2 className="text-lg font-semibold text-gray-900">Default Low Stock Threshold</h2>
@@ -80,7 +85,8 @@ function SettingsPage() {
           Save Settings
         </Button>
       </form>
-    </Card>
+      </Card>
+    </div>
   );
 }
 

@@ -31,7 +31,7 @@ function AppLayout() {
 
   const linkClass = ({ isActive }) =>
     cn(
-      "flex h-10 items-center rounded-md px-3 text-sm font-medium transition",
+      "flex h-10 items-center rounded-md px-3 text-sm font-medium transition-colors duration-150",
       isActive ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-100"
     );
 
@@ -45,7 +45,7 @@ function AppLayout() {
           )}
         >
           <div className="mb-8 flex items-center justify-between">
-            <h1 className="text-xl font-semibold tracking-tight">StockFlow</h1>
+            <h1 className="text-xl font-bold tracking-tight text-gray-900">StockFlow</h1>
             <Button className="lg:hidden" variant="ghost" onClick={() => setSidebarOpen(false)}>
               ✕
             </Button>

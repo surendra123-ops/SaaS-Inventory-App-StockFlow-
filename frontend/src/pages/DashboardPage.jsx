@@ -65,22 +65,26 @@ function DashboardPage() {
   return (
     <div className="space-y-6">
       {error && <p className="rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+      <div className="space-y-2">
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-sm text-gray-500">Monitor inventory health, low stock risk, and recent activity.</p>
+      </div>
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="p-5">
+        <Card className="p-6">
           <p className="text-sm text-gray-500">Total Products</p>
-          <p className="mt-2 text-3xl font-semibold text-gray-900">{data.totalProducts}</p>
+          <p className="mt-2 text-3xl font-bold text-gray-900">{data.totalProducts}</p>
         </Card>
-        <Card className="p-5">
+        <Card className="p-6">
           <p className="text-sm text-gray-500">Total Quantity</p>
-          <p className="mt-2 text-3xl font-semibold text-gray-900">{data.totalQuantity}</p>
+          <p className="mt-2 text-3xl font-bold text-gray-900">{data.totalQuantity}</p>
         </Card>
-        <Card className="p-5">
+        <Card className="p-6">
           <p className="text-sm text-gray-500">Low Stock Count</p>
-          <p className="mt-2 text-3xl font-semibold text-red-600">{data.lowStockItems.length}</p>
+          <p className="mt-2 text-3xl font-bold text-amber-600">{data.lowStockItems.length}</p>
         </Card>
       </div>
       <Card>
-        <div className="border-b border-gray-200 px-4 py-3">
+        <div className="border-b border-gray-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-gray-900">Low Stock Items</h2>
         </div>
         <Table>
@@ -100,44 +104,19 @@ function DashboardPage() {
               </TR>
             ) : (
               data.lowStockItems.map((item) => (
-                <TR key={item._id} className="bg-red-50/40">
+                <TR key={item._id} className="bg-amber-50/50 hover:bg-amber-50">
                   <TD className="font-medium text-gray-900">{item.name}</TD>
                   <TD>{item.sku}</TD>
-                  <TD className="text-right font-semibold text-red-700">{item.quantity}</TD>
+                  <TD className="text-right font-semibold text-amber-700">{item.quantity}</TD>
                 </TR>
               ))
             )}
           </TBody>
         </Table>
-        {recentPagination.total > 0 && (
-          <div className="flex flex-col items-center justify-between gap-3 border-t border-gray-200 px-4 py-3 sm:flex-row">
-            <p className="text-sm text-gray-600">
-              Page {recentPagination.page} of {recentPagination.totalPages}
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="secondary"
-                className="h-8 px-3"
-                disabled={recentPage <= 1}
-                onClick={() => setRecentPage((prev) => Math.max(1, prev - 1))}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="secondary"
-                className="h-8 px-3"
-                disabled={recentPage >= recentPagination.totalPages}
-                onClick={() => setRecentPage((prev) => Math.min(recentPagination.totalPages, prev + 1))}
-              >
-                Next
-              </Button>
-            </div>
-          </div>
-        )}
       </Card>
 
       <Card>
-        <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+        <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
           <h2 className="text-lg font-semibold text-gray-900">Recent Products</h2>
           <Button variant="secondary" className="h-8 px-3" onClick={() => navigate("/products")}>
             View All
@@ -163,12 +142,12 @@ function DashboardPage() {
               recentProducts.map((item) => {
                 const lowStock = item.quantity <= (item.lowStockThreshold ?? defaultThreshold);
                 return (
-                  <TR key={item._id} className={lowStock ? "bg-red-50/30 hover:bg-red-50/50" : ""}>
+                  <TR key={item._id} className={lowStock ? "bg-amber-50/50 hover:bg-amber-50" : ""}>
                     <TD className="font-medium text-gray-900">{item.name}</TD>
                     <TD>{item.sku}</TD>
                     <TD className="text-right">{item.quantity}</TD>
                     <TD>
-                      <Badge variant={lowStock ? "danger" : "success"}>{lowStock ? "Low Stock" : "In Stock"}</Badge>
+                      <Badge variant={lowStock ? "warning" : "success"}>{lowStock ? "Low Stock" : "In Stock"}</Badge>
                     </TD>
                   </TR>
                 );
@@ -176,6 +155,31 @@ function DashboardPage() {
             )}
           </TBody>
         </Table>
+        {recentPagination.total > 0 && (
+          <div className="flex flex-col items-center justify-between gap-3 border-t border-gray-200 px-6 py-4 sm:flex-row">
+            <p className="text-sm text-gray-600">
+              Page {recentPagination.page} of {recentPagination.totalPages}
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="secondary"
+                className="h-8 px-3"
+                disabled={recentPage <= 1}
+                onClick={() => setRecentPage((prev) => Math.max(1, prev - 1))}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="secondary"
+                className="h-8 px-3"
+                disabled={recentPage >= recentPagination.totalPages}
+                onClick={() => setRecentPage((prev) => Math.min(recentPagination.totalPages, prev + 1))}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </Card>
     </div>
   );
