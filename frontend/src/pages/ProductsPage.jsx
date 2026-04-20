@@ -1,14 +1,27 @@
 import { useEffect, useState } from "react";
 import { productApi } from "../api/productApi.js";
+import { settingsApi } from "../api/settingsApi.js";
 import ProductForm from "../components/ProductForm.jsx";
+import Badge from "../components/ui/Badge.jsx";
+import Button from "../components/ui/Button.jsx";
+import Card from "../components/ui/Card.jsx";
+import Input from "../components/ui/Input.jsx";
+import Modal from "../components/ui/Modal.jsx";
+import Skeleton from "../components/ui/Skeleton.jsx";
+import { Table, TBody, TD, TH, THead, TR } from "../components/ui/Table.jsx";
+import { useToast } from "../hooks/useToast.js";
 import { formatError } from "../utils/formatError.js";
 
 function ProductsPage() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [editing, setEditing] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [defaultThreshold, setDefaultThreshold] = useState(10);
   const [error, setError] = useState("");
+  const toast = useToast();
 
   const load = async (searchValue = "") => {
     try {
@@ -21,17 +34,17 @@ function ProductsPage() {
 
   useEffect(() => {
     let isMounted = true;
-    productApi
-      .list()
-      .then((res) => {
-        if (isMounted) {
-          setProducts(res.data.data.products);
-        }
+    Promise.all([productApi.list(), settingsApi.get()])
+      .then(([productsResponse, settingsResponse]) => {
+        if (!isMounted) return;
+        setProducts(productsResponse.data.data.products);
+        setDefaultThreshold(settingsResponse.data.data.settings.defaultLowStockThreshold);
       })
       .catch((err) => {
-        if (isMounted) {
-          setError(formatError(err));
-        }
+        if (isMounted) setError(formatError(err));
+      })
+      .finally(() => {
+        if (isMounted) setPageLoading(false);
       });
     return () => {
       isMounted = false;
@@ -44,13 +57,17 @@ function ProductsPage() {
     try {
       if (editing) {
         await productApi.update(editing._id, payload);
+        toast.success("Updated successfully");
       } else {
         await productApi.create(payload);
+        toast.success("Product created successfully");
       }
       setEditing(null);
+      setIsModalOpen(false);
       await load(search);
     } catch (err) {
       setError(formatError(err));
+      toast.error("Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -63,61 +80,127 @@ function ProductsPage() {
     }
     try {
       await productApi.remove(id);
+      toast.success("Deleted successfully");
       await load(search);
     } catch (err) {
       setError(formatError(err));
+      toast.error("Something went wrong");
     }
   };
 
-  return (
-    <div className="space-y-4">
-      {error && <p className="rounded bg-red-50 p-3 text-sm text-red-700">{error}</p>}
-      <div className="flex gap-2">
-        <input className="w-full rounded border bg-white p-2" placeholder="Search by name or SKU" value={search} onChange={(e) => setSearch(e.target.value)} />
-        <button onClick={() => load(search)} className="rounded bg-gray-900 px-4 py-2 text-white">Search</button>
+  const openCreateModal = () => {
+    setEditing(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (item) => {
+    setEditing(item);
+    setIsModalOpen(true);
+  };
+
+  if (pageLoading) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-12" />
+        <Skeleton className="h-96" />
       </div>
-      <ProductForm
-        key={editing?._id || "new-product"}
-        onSubmit={handleSubmit}
-        onCancel={() => setEditing(null)}
-        product={editing}
-        loading={loading}
-      />
-      <div className="rounded-lg bg-white p-4 shadow">
-        <h2 className="mb-3 text-lg font-semibold">Products</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead>
-              <tr className="border-b text-left">
-                <th className="p-2">Name</th>
-                <th className="p-2">SKU</th>
-                <th className="p-2">Quantity</th>
-                <th className="p-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((item) => (
-                <tr key={item._id} className="border-b">
-                  <td className="p-2">{item.name}</td>
-                  <td className="p-2">{item.sku}</td>
-                  <td className="p-2">{item.quantity}</td>
-                  <td className="p-2">
-                    <div className="flex gap-2">
-                      <button onClick={() => setEditing(item)} className="rounded bg-blue-600 px-2 py-1 text-white">Edit</button>
-                      <button onClick={() => onDelete(item._id)} className="rounded bg-red-600 px-2 py-1 text-white">Delete</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {products.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="p-2 text-gray-500">No products found</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+    );
+  }
+
+  return (
+    <div className="space-y-5">
+      {error && <p className="rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <Input
+          id="product-search"
+          label="Search Products"
+          containerClassName="w-full"
+          placeholder="Search by product name or SKU"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") load(search);
+          }}
+        />
+        <div className="flex gap-2">
+          <Button variant="secondary" onClick={() => load(search)}>
+            Search
+          </Button>
+          <Button onClick={openCreateModal}>Add Product</Button>
         </div>
       </div>
+
+      <Card>
+        <div className="border-b border-gray-200 px-4 py-3">
+          <h2 className="text-lg font-semibold text-gray-900">Products</h2>
+        </div>
+        <Table>
+          <THead>
+            <tr>
+              <TH>Name</TH>
+              <TH>SKU</TH>
+              <TH className="text-right">Quantity</TH>
+              <TH>Status</TH>
+              <TH className="text-right">Actions</TH>
+            </tr>
+          </THead>
+          <TBody>
+            {products.length === 0 ? (
+              <TR>
+                <TD colSpan={5} className="py-10 text-center text-gray-500">
+                  No products yet. Add your first product.
+                </TD>
+              </TR>
+            ) : (
+              products.map((item) => {
+                const threshold = item.lowStockThreshold ?? defaultThreshold;
+                const lowStock = item.quantity <= threshold;
+                return (
+                  <TR key={item._id}>
+                    <TD className="font-medium text-gray-900">{item.name}</TD>
+                    <TD>{item.sku}</TD>
+                    <TD className="text-right">{item.quantity}</TD>
+                    <TD>
+                      <Badge variant={lowStock ? "danger" : "success"}>{lowStock ? "Low stock" : "In stock"}</Badge>
+                    </TD>
+                    <TD className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="secondary" className="h-8 px-3" onClick={() => openEditModal(item)}>
+                          Edit
+                        </Button>
+                        <Button variant="danger" className="h-8 px-3" onClick={() => onDelete(item._id)}>
+                          🗑 Delete
+                        </Button>
+                      </div>
+                    </TD>
+                  </TR>
+                );
+              })
+            )}
+          </TBody>
+        </Table>
+      </Card>
+
+      <Modal
+        open={isModalOpen}
+        title={editing ? "Edit Product" : "Add Product"}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditing(null);
+        }}
+      >
+        <ProductForm
+          key={editing?._id || "new-product"}
+          onSubmit={handleSubmit}
+          onCancel={() => {
+            setIsModalOpen(false);
+            setEditing(null);
+          }}
+          product={editing}
+          loading={loading}
+        />
+      </Modal>
     </div>
   );
 }

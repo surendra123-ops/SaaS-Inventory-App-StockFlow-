@@ -1,65 +1,91 @@
 import { useEffect, useState } from "react";
 import { dashboardApi } from "../api/dashboardApi.js";
 import { formatError } from "../utils/formatError.js";
+import Card from "../components/ui/Card.jsx";
+import Skeleton from "../components/ui/Skeleton.jsx";
+import { Table, TBody, TD, TH, THead, TR } from "../components/ui/Table.jsx";
 
 function DashboardPage() {
   const [data, setData] = useState({ totalProducts: 0, totalQuantity: 0, lowStockItems: [] });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         const res = await dashboardApi.get();
         setData(res.data.data);
       } catch (err) {
         setError(formatError(err));
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
   }, []);
 
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="grid gap-4 md:grid-cols-3">
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+        </div>
+        <Skeleton className="h-72" />
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-5">
-      {error && <p className="rounded bg-red-50 p-3 text-sm text-red-700">{error}</p>}
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-lg bg-white p-4 shadow">
-          <p className="text-sm text-gray-500">Total products</p>
-          <p className="text-3xl font-bold text-gray-900">{data.totalProducts}</p>
-        </div>
-        <div className="rounded-lg bg-white p-4 shadow">
-          <p className="text-sm text-gray-500">Total quantity</p>
-          <p className="text-3xl font-bold text-gray-900">{data.totalQuantity}</p>
-        </div>
+    <div className="space-y-6">
+      {error && <p className="rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card className="p-5">
+          <p className="text-sm text-gray-500">Total Products</p>
+          <p className="mt-2 text-3xl font-semibold text-gray-900">{data.totalProducts}</p>
+        </Card>
+        <Card className="p-5">
+          <p className="text-sm text-gray-500">Total Quantity</p>
+          <p className="mt-2 text-3xl font-semibold text-gray-900">{data.totalQuantity}</p>
+        </Card>
+        <Card className="p-5">
+          <p className="text-sm text-gray-500">Low Stock Count</p>
+          <p className="mt-2 text-3xl font-semibold text-red-600">{data.lowStockItems.length}</p>
+        </Card>
       </div>
-      <div className="rounded-lg bg-white p-4 shadow">
-        <h2 className="mb-3 text-lg font-semibold text-gray-900">Low stock items</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead>
-              <tr className="border-b text-left">
-                <th className="p-2">Name</th>
-                <th className="p-2">SKU</th>
-                <th className="p-2">Quantity</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.lowStockItems.length === 0 ? (
-                <tr>
-                  <td className="p-2 text-gray-500" colSpan={3}>No low stock items</td>
-                </tr>
-              ) : (
-                data.lowStockItems.map((item) => (
-                  <tr key={item._id} className="border-b">
-                    <td className="p-2">{item.name}</td>
-                    <td className="p-2">{item.sku}</td>
-                    <td className="p-2">{item.quantity}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+      <Card>
+        <div className="border-b border-gray-200 px-4 py-3">
+          <h2 className="text-lg font-semibold text-gray-900">Low Stock Items</h2>
         </div>
-      </div>
+        <Table>
+          <THead>
+            <tr>
+              <TH>Name</TH>
+              <TH>SKU</TH>
+              <TH className="text-right">Quantity</TH>
+            </tr>
+          </THead>
+          <TBody>
+            {data.lowStockItems.length === 0 ? (
+              <TR>
+                <TD colSpan={3} className="py-8 text-center text-gray-500">
+                  All products are well stocked
+                </TD>
+              </TR>
+            ) : (
+              data.lowStockItems.map((item) => (
+                <TR key={item._id} className="bg-red-50/40">
+                  <TD className="font-medium text-gray-900">{item.name}</TD>
+                  <TD>{item.sku}</TD>
+                  <TD className="text-right font-semibold text-red-700">{item.quantity}</TD>
+                </TR>
+              ))
+            )}
+          </TBody>
+        </Table>
+      </Card>
     </div>
   );
 }
