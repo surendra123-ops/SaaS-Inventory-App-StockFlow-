@@ -1,10 +1,20 @@
 import axios from "axios";
 
-const api = axios.create({
-  baseURL:
+const normalizeApiBaseUrl = () => {
+  const raw =
     import.meta.env.VITE_API_BASE_URL ||
     import.meta.env.VITE_API_URL ||
-    "http://localhost:5000/api",
+    "http://localhost:5000/api";
+
+  const withoutTrailingSlash = raw.endsWith("/") ? raw.slice(0, -1) : raw;
+  if (withoutTrailingSlash.endsWith("/api")) {
+    return withoutTrailingSlash;
+  }
+  return `${withoutTrailingSlash}/api`;
+};
+
+const api = axios.create({
+  baseURL: normalizeApiBaseUrl(),
   withCredentials: true
 });
 
