@@ -26,6 +26,15 @@ html.dark {
   background-color: #0f172a;
 }
 
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition-property: background-color, color, border-color, box-shadow, fill, stroke;
+  transition-duration: 220ms;
+  transition-timing-function: ease;
+}
+
 @keyframes sfFadeIn {
   from {
     opacity: 0;

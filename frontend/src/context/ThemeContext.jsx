@@ -14,12 +14,17 @@ export function ThemeProvider({ children }) {
 
   useEffect(() => {
     const root = document.documentElement;
+    root.classList.add("theme-transition");
     if (theme === "dark") {
       root.classList.add("dark");
     } else {
       root.classList.remove("dark");
     }
     localStorage.setItem(THEME_STORAGE_KEY, theme);
+    const timeout = window.setTimeout(() => {
+      root.classList.remove("theme-transition");
+    }, 260);
+    return () => window.clearTimeout(timeout);
   }, [theme]);
 
   const value = useMemo(
