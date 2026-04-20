@@ -20,6 +20,17 @@ for (const key of required) {
   }
 }
 
+const cookieSameSite = process.env.COOKIE_SAME_SITE.toLowerCase();
+const allowedSameSite = ["lax", "strict", "none"];
+if (!allowedSameSite.includes(cookieSameSite)) {
+  throw new Error("COOKIE_SAME_SITE must be one of: lax, strict, none");
+}
+
+const cookieSecure = process.env.COOKIE_SECURE === "true";
+if (cookieSameSite === "none" && !cookieSecure) {
+  throw new Error("COOKIE_SECURE must be true when COOKIE_SAME_SITE is none");
+}
+
 export const env = {
   port: Number(process.env.PORT),
   mongoUri: process.env.MONGO_URI,
@@ -27,7 +38,7 @@ export const env = {
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
   accessTokenExpiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN,
   refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
-  cookieSecure: process.env.COOKIE_SECURE === "true",
-  cookieSameSite: process.env.COOKIE_SAME_SITE,
+  cookieSecure,
+  cookieSameSite,
   corsOrigin: process.env.CORS_ORIGIN
 };

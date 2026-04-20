@@ -14,11 +14,15 @@ import { env } from "./config/env.js";
 import { errorResponse } from "./utils/apiResponse.js";
 
 export const app = express();
+const allowedOrigins = env.corsOrigin
+  .split(",")
+  .map((origin) => origin.trim().replace(/\/$/, ""))
+  .filter(Boolean);
 
 app.use(helmet());
 app.use(
   cors({
-    origin: env.corsOrigin.split(",").map((origin) => origin.trim()),
+    origin: allowedOrigins,
     credentials: true
   })
 );
