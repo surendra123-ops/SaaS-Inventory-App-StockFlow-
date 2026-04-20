@@ -10,6 +10,7 @@ const required = [
   "ACCESS_TOKEN_EXPIRES_IN",
   "REFRESH_TOKEN_EXPIRES_IN",
   "COOKIE_SECURE",
+  "COOKIE_SAME_SITE",
   "CORS_ORIGIN"
 ];
 
@@ -27,5 +28,6 @@ export const env = {
   accessTokenExpiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN,
   refreshTokenExpiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
   cookieSecure: process.env.COOKIE_SECURE === "true",
+  cookieSameSite: process.env.COOKIE_SAME_SITE,
   corsOrigin: process.env.CORS_ORIGIN
 };

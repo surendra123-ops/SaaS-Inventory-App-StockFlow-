@@ -11,16 +11,19 @@ export const signRefreshToken = (payload) =>
 export const verifyAccessToken = (token) => jwt.verify(token, env.jwtAccessSecret);
 export const verifyRefreshToken = (token) => jwt.verify(token, env.jwtRefreshSecret);
 
-export const getAccessCookieOptions = () => ({
+export const getCookieBaseOptions = () => ({
   httpOnly: true,
   secure: env.cookieSecure,
-  sameSite: "strict",
+  sameSite: env.cookieSameSite,
+  path: "/"
+});
+
+export const getAccessCookieOptions = () => ({
+  ...getCookieBaseOptions(),
   maxAge: ms(env.accessTokenExpiresIn)
 });
 
 export const getRefreshCookieOptions = () => ({
-  httpOnly: true,
-  secure: env.cookieSecure,
-  sameSite: "strict",
+  ...getCookieBaseOptions(),
   maxAge: ms(env.refreshTokenExpiresIn)
 });

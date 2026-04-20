@@ -1,11 +1,6 @@
 import { authService } from "../services/authService.js";
 import { successResponse } from "../utils/apiResponse.js";
-import { getAccessCookieOptions, getRefreshCookieOptions } from "../utils/token.js";
-
-const clearCookieOptions = {
-  httpOnly: true,
-  sameSite: "strict"
-};
+import { getAccessCookieOptions, getCookieBaseOptions, getRefreshCookieOptions } from "../utils/token.js";
 
 export const authController = {
   async signup(req, res, next) {
@@ -38,8 +33,8 @@ export const authController = {
     }
   },
   logout(_req, res) {
-    res.clearCookie("accessToken", clearCookieOptions);
-    res.clearCookie("refreshToken", clearCookieOptions);
+    res.clearCookie("accessToken", getCookieBaseOptions());
+    res.clearCookie("refreshToken", getCookieBaseOptions());
     return res.json(successResponse({}));
   }
 };
