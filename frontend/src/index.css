@@ -10,3 +10,31 @@ body {
 * {
   box-sizing: border-box;
 }
+
+@keyframes sfFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sfScaleIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.sf-modal-overlay {
+  animation: sfFadeIn 180ms ease-out;
+}
+
+.sf-modal-panel {
+  animation: sfScaleIn 220ms ease-out;
+}

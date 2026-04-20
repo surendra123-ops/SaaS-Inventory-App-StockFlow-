@@ -1,16 +1,16 @@
 import { useEffect } from "react";
 import Button from "./Button.jsx";
 
-function Modal({ open, title, children, onClose, footer }) {
+function Modal({ open, title, children, onClose, footer, disableClose = false }) {
   useEffect(() => {
     const onKeyDown = (event) => {
-      if (event.key === "Escape" && open) {
+      if (event.key === "Escape" && open && !disableClose) {
         onClose();
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
+  }, [open, onClose, disableClose]);
 
   if (!open) {
     return null;
@@ -18,11 +18,17 @@ function Modal({ open, title, children, onClose, footer }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <button aria-label="Close modal overlay" className="absolute inset-0 bg-gray-900/40" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-2xl rounded-xl border border-gray-200 bg-white shadow-xl">
+      <button
+        aria-label="Close modal overlay"
+        className="sf-modal-overlay absolute inset-0 bg-gray-900/45"
+        onClick={() => {
+          if (!disableClose) onClose();
+        }}
+      />
+      <div className="sf-modal-panel relative z-10 w-full max-w-2xl rounded-xl border border-gray-200 bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
           <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-          <Button variant="ghost" className="h-8 px-2" onClick={onClose}>
+          <Button variant="ghost" className="h-8 px-2" onClick={onClose} disabled={disableClose}>
             ✕
           </Button>
         </div>

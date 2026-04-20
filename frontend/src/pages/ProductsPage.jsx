@@ -1,11 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { productApi } from "../api/productApi.js";
 import { settingsApi } from "../api/settingsApi.js";
 import ProductForm from "../components/ProductForm.jsx";
 import Badge from "../components/ui/Badge.jsx";
 import Button from "../components/ui/Button.jsx";
 import Card from "../components/ui/Card.jsx";
-import Input from "../components/ui/Input.jsx";
 import Modal from "../components/ui/Modal.jsx";
 import Skeleton from "../components/ui/Skeleton.jsx";
 import { Table, TBody, TD, TH, THead, TR } from "../components/ui/Table.jsx";
@@ -13,20 +12,24 @@ import { useToast } from "../hooks/useToast.js";
 import { formatError } from "../utils/formatError.js";
 
 function ProductsPage() {
-  const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [editing, setEditing] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
   const [defaultThreshold, setDefaultThreshold] = useState(10);
   const [error, setError] = useState("");
   const toast = useToast();
 
-  const load = async (searchValue = "") => {
+  const load = async () => {
     try {
-      const res = await productApi.list(searchValue);
-      setProducts(res.data.data.products);
+      const res = await productApi.list();
+      setAllProducts(res.data.data.products);
     } catch (err) {
       setError(formatError(err));
     }
@@ -37,7 +40,7 @@ function ProductsPage() {
     Promise.all([productApi.list(), settingsApi.get()])
       .then(([productsResponse, settingsResponse]) => {
         if (!isMounted) return;
-        setProducts(productsResponse.data.data.products);
+        setAllProducts(productsResponse.data.data.products);
         setDefaultThreshold(settingsResponse.data.data.settings.defaultLowStockThreshold);
       })
       .catch((err) => {
@@ -51,6 +54,21 @@ function ProductsPage() {
     };
   }, []);
 
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setDebouncedSearch(search), 400);
+    return () => window.clearTimeout(timeout);
+  }, [search]);
+
+  const products = useMemo(() => {
+    const term = debouncedSearch.trim().toLowerCase();
+    if (!term) {
+      return allProducts;
+    }
+    return allProducts.filter(
+      (item) => item.name.toLowerCase().includes(term) || item.sku.toLowerCase().includes(term)
+    );
+  }, [allProducts, debouncedSearch]);
+
   const handleSubmit = async (payload) => {
     setLoading(true);
     setError("");
@@ -63,8 +81,8 @@ function ProductsPage() {
         toast.success("Product created successfully");
       }
       setEditing(null);
-      setIsModalOpen(false);
-      await load(search);
+      setIsFormModalOpen(false);
+      await load();
     } catch (err) {
       setError(formatError(err));
       toast.error("Something went wrong");
@@ -73,29 +91,36 @@ function ProductsPage() {
     }
   };
 
-  const onDelete = async (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this product?");
-    if (!confirmed) {
-      return;
-    }
+  const onDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await productApi.remove(id);
-      toast.success("Deleted successfully");
-      await load(search);
+      setDeleteLoading(true);
+      await productApi.remove(deleteTarget._id);
+      setAllProducts((prev) => prev.filter((item) => item._id !== deleteTarget._id));
+      setIsDeleteModalOpen(false);
+      setDeleteTarget(null);
+      toast.success("Product deleted successfully");
     } catch (err) {
       setError(formatError(err));
-      toast.error("Something went wrong");
+      toast.error("Failed to delete product");
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
   const openCreateModal = () => {
     setEditing(null);
-    setIsModalOpen(true);
+    setIsFormModalOpen(true);
   };
 
   const openEditModal = (item) => {
     setEditing(item);
-    setIsModalOpen(true);
+    setIsFormModalOpen(true);
+  };
+
+  const openDeleteModal = (item) => {
+    setDeleteTarget(item);
+    setIsDeleteModalOpen(true);
   };
 
   if (pageLoading) {
@@ -112,21 +137,31 @@ function ProductsPage() {
       {error && <p className="rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</p>}
 
       <div className="flex flex-col gap-3 sm:flex-row">
-        <Input
-          id="product-search"
-          label="Search Products"
-          containerClassName="w-full"
-          placeholder="Search by product name or SKU"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") load(search);
-          }}
-        />
+        <div className="w-full">
+          <label htmlFor="product-search" className="mb-1 block text-sm font-medium text-gray-700">
+            Search Products
+          </label>
+          <div className="relative">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">⌕</span>
+            <input
+              id="product-search"
+              className="h-10 w-full rounded-md border border-gray-300 bg-white pl-9 pr-9 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              placeholder="Search by name or SKU"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            {search && (
+              <button
+                className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-gray-500 hover:bg-gray-100"
+                onClick={() => setSearch("")}
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
         <div className="flex gap-2">
-          <Button variant="secondary" onClick={() => load(search)}>
-            Search
-          </Button>
           <Button onClick={openCreateModal}>Add Product</Button>
         </div>
       </div>
@@ -146,10 +181,16 @@ function ProductsPage() {
             </tr>
           </THead>
           <TBody>
-            {products.length === 0 ? (
+            {allProducts.length === 0 ? (
               <TR>
                 <TD colSpan={5} className="py-10 text-center text-gray-500">
                   No products yet. Add your first product.
+                </TD>
+              </TR>
+            ) : products.length === 0 ? (
+              <TR>
+                <TD colSpan={5} className="py-10 text-center text-gray-500">
+                  No results found
                 </TD>
               </TR>
             ) : (
@@ -157,7 +198,7 @@ function ProductsPage() {
                 const threshold = item.lowStockThreshold ?? defaultThreshold;
                 const lowStock = item.quantity <= threshold;
                 return (
-                  <TR key={item._id}>
+                  <TR key={item._id} className={lowStock ? "bg-red-50/30 hover:bg-red-50/50" : ""}>
                     <TD className="font-medium text-gray-900">{item.name}</TD>
                     <TD>{item.sku}</TD>
                     <TD className="text-right">{item.quantity}</TD>
@@ -169,7 +210,7 @@ function ProductsPage() {
                         <Button variant="secondary" className="h-8 px-3" onClick={() => openEditModal(item)}>
                           Edit
                         </Button>
-                        <Button variant="danger" className="h-8 px-3" onClick={() => onDelete(item._id)}>
+                        <Button variant="danger" className="h-8 px-3" onClick={() => openDeleteModal(item)}>
                           🗑 Delete
                         </Button>
                       </div>
@@ -183,10 +224,10 @@ function ProductsPage() {
       </Card>
 
       <Modal
-        open={isModalOpen}
+        open={isFormModalOpen}
         title={editing ? "Edit Product" : "Add Product"}
         onClose={() => {
-          setIsModalOpen(false);
+          setIsFormModalOpen(false);
           setEditing(null);
         }}
       >
@@ -194,12 +235,43 @@ function ProductsPage() {
           key={editing?._id || "new-product"}
           onSubmit={handleSubmit}
           onCancel={() => {
-            setIsModalOpen(false);
+            setIsFormModalOpen(false);
             setEditing(null);
           }}
           product={editing}
           loading={loading}
         />
+      </Modal>
+
+      <Modal
+        open={isDeleteModalOpen}
+        title="Delete Product"
+        disableClose={deleteLoading}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeleteTarget(null);
+        }}
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              disabled={deleteLoading}
+              onClick={() => {
+                setIsDeleteModalOpen(false);
+                setDeleteTarget(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button variant="danger" loading={deleteLoading} disabled={deleteLoading} onClick={onDelete}>
+              Delete
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-gray-600">
+          Are you sure you want to delete this product? This action cannot be undone.
+        </p>
       </Modal>
     </div>
   );
